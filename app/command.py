@@ -14,13 +14,13 @@ from telegram import Bot
 from app import app, db
 from app.models import Device, Raw, Periodik, Lokasi
 
-bws_sul2 = ("bwssul2", "limboto1029")
+bws_sul1 = ("bwssul1", "manado1029")
 
 URL = "https://prinus.net/api/sensor"
 MQTT_HOST = "mqtt.bbws-bsolo.net"
 MQTT_PORT = 14983
-MQTT_TOPIC = "bws-sul2"
-MQTT_CLIENT = "primabase_bwssul2"
+MQTT_TOPIC = "bws-sul1"
+MQTT_CLIENT = "primabase_bwssul1"
 
 logging.basicConfig(
         filename='/tmp/primabaselistener.log',
@@ -36,32 +36,32 @@ def telegram(command):
         print(info_ch_tma())
     elif command == 'info_ch':
         info = info_ch()
-        bot = Bot(token=app.config.get('BWSSUL2BOT_TOKEN'))
-        bot.sendMessage(app.config.get('BWS_SUL2_TELEMETRY_GROUP'),
+        bot = Bot(token=app.config.get('BWSSUL1BOT_TOKEN'))
+        bot.sendMessage(app.config.get('BWS_SUL1_TELEMETRY_GROUP'),
                         text=info,
                         parse_mode='Markdown')
     elif command == 'info_tma':
         info = info_tma()
-        bot = Bot(token=app.config.get('BWSSUL2BOT_TOKEN'))
-        bot.sendMessage(app.config.get('BWS_SUL2_TELEMETRY_GROUP'),
+        bot = Bot(token=app.config.get('BWSSUL1BOT_TOKEN'))
+        bot.sendMessage(app.config.get('BWS_SUL1_TELEMETRY_GROUP'),
                         text=(info),
                         parse_mode='Markdown')
     elif command == 'send':
-        bot = Bot(token=app.config.get('BWSSUL2BOT_TOKEN'))
-        bot.sendMessage(app.config.get('BWS_SUL2_TELEMETRY_GROUP'),
+        bot = Bot(token=app.config.get('BWSSUL1BOT_TOKEN'))
+        bot.sendMessage(app.config.get('BWS_SUL1_TELEMETRY_GROUP'),
                         text=(persentase_hadir_data(tgl)),
                         parse_mode='Markdown')
 
 
 def info_ch():
-    ret = "*BWS Sulawesi 2*\n\n"
+    ret = "*BWS Sulawesi 1*\n\n"
     ch = build_ch()
     ret += ch
     return ret
 
 
 def info_tma():
-    ret = "*BWS Sulawesi 2*\n\n"
+    ret = "*BWS Sulawesi 1*\n\n"
     tma = build_tma()
     ret += tma
     return ret
@@ -75,7 +75,7 @@ def build_ch():
     ret = "*Curah Hujan %s*\n" % (dari.strftime('%d %b %Y'))
     dari_fmt = dari.date() != now.date() and '%d %b %Y %H:%M' or '%H:%M'
     ret += "Akumulasi: %s sd %s (%.1f jam)\n\n" % (dari.strftime(dari_fmt),
-                                                 now.strftime('%H:%M'), 
+                                                 now.strftime('%H:%M'),
                                                  (now - dari).seconds / 3600)
     i = 1
     for pos in Lokasi.query.filter(or_(Lokasi.jenis == '1', Lokasi.jenis ==
@@ -113,7 +113,7 @@ def build_tma():
 
 
 def persentase_hadir_data(tgl):
-    out = '''*BWS Sulawesi 2*
+    out = '''*BWS Sulawesi 1*
 
 *Kehadiran Data*
 %(tgl)s (0:0 - 23:55)
@@ -192,7 +192,7 @@ def subscribe_topic():
 
 @app.cli.command()
 def fetch_logger():
-    res = requests.get(URL, auth=bws_sul2)
+    res = requests.get(URL, auth=bws_sul1)
 
     if res.status_code == 200:
         logger = json.loads(res.text)
@@ -215,7 +215,7 @@ def fetch_periodic(sn, sampling):
     sampling_param = ''
     if sampling:
         sampling_param = '&sampling=' + sampling
-    res = requests.get(URL + '/' + sn + '?robot=1' + sampling_param, auth=bws_sul2)
+    res = requests.get(URL + '/' + sn + '?robot=1' + sampling_param, auth=bws_sul1)
     data = json.loads(res.text)
     for d in data:
         content = Raw(content=d)
