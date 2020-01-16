@@ -1,6 +1,5 @@
 #!/bin/bash
 
-cd /opt/primabase
-source venv/bin/activate
+cd /home/rmyrnvn/Vault/Work/BBWS_BSolo/primabase_project/pbase_mdc
 source .env
-flask fetch-periodic mine
+flask fetch-periodic-today

@@ -2,6 +2,7 @@ import click
 import logging
 import requests
 import datetime
+import os
 import json
 import daemonocle
 import paho.mqtt.subscribe as subscribe
@@ -20,7 +21,7 @@ URL = "https://prinus.net/api/sensor"
 MQTT_HOST = "mqtt.bbws-bsolo.net"
 MQTT_PORT = 14983
 MQTT_TOPIC = "bws-sul1"
-MQTT_CLIENT = "primabase_bwssul1"
+MQTT_CLIENT = ""
 
 logging.basicConfig(
         filename='/tmp/primabaselistener.log',
@@ -226,7 +227,24 @@ def fetch_periodic(sn, sampling):
         except Exception as e:
             db.session.rollback()
             print("ERROR:", e)
-        print(d.get('sampling'), d.get('temperature'))
+        # print(d.get('sampling'), d.get('temperature'))
+
+
+@app.cli.command()
+@click.option('-s', '--sampling', default='', help='Awal waktu sampling')
+def fetch_periodic_today(sampling):
+    devices = Device.query.all()
+    today = datetime.datetime.today()
+    if not sampling:
+        sampling = today.strftime("%Y/%m/%d")
+    for d in devices:
+        try:
+            print(f"Fetch Periodic for {d.sn}")
+            logging.debug(f"Fetch Periodic for {d.sn}")
+            os.system(f"flask fetch-periodic {d.sn} -s {sampling}")
+        except Exception as e:
+            print(f"!!Fetch Periodic ({d.sn}) ERROR : {e}")
+            logging.debug(f"!!Fetch Periodic ({d.sn}) ERROR : {e}")
 
 
 def raw2periodic(raw):
@@ -271,7 +289,7 @@ def raw2periodic(raw):
             device.lokasi.update_latest()
         db.session.commit()
     except IntegrityError:
-        print(obj.get('device_sn'), obj.get('lokasi_id'), obj.get('sampling'))
+        # print(obj.get('device_sn'), obj.get('lokasi_id'), obj.get('sampling'))
         db.session.rollback()
 
 
