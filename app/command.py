@@ -18,7 +18,7 @@ from app.models import Device, Raw, Periodik, Lokasi
 bws_sul1 = ("bwssul1", "manado1029")
 
 URL = "https://prinus.net/api/sensor"
-MQTT_HOST = "mqtt.bbws-bsolo.net"
+MQTT_HOST = "mqtt.prinus.net"  # "mqtt.bbws-bsolo.net"
 MQTT_PORT = 14983
 MQTT_TOPIC = "bws-sul1"
 MQTT_CLIENT = ""
@@ -173,8 +173,7 @@ def persentase_hadir_data(tgl):
 @app.cli.command()
 @click.argument('command')
 def listen(command):
-    daemon = daemonocle.Daemon(worker=subscribe_topic,
-                              pidfile='listener.pid')
+    daemon = daemonocle.Daemon(worker=subscribe_topic, pidfile='listener.pid')
     daemon.do_action(command)
 
 
@@ -288,8 +287,10 @@ def raw2periodic(raw):
         if device.lokasi:
             device.lokasi.update_latest()
         db.session.commit()
+        print(f"{d.sampling} inserted!")
     except IntegrityError:
         # print(obj.get('device_sn'), obj.get('lokasi_id'), obj.get('sampling'))
+        print(f"IntegrityError : {d.sampling}")
         db.session.rollback()
 
 
