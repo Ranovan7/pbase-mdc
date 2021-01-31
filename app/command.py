@@ -24,7 +24,7 @@ MQTT_TOPIC = "bws-sul1"
 MQTT_CLIENT = ""
 
 logging.basicConfig(
-        filename='/tmp/primabaselistener.log',
+        filename=os.environ['LOG_FILE'],
         level=logging.DEBUG, format='%(asctime)s [%(levelname)s] %(message)s')
 
 @app.cli.command()
